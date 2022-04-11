@@ -1,0 +1,13 @@
+﻿global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Metadata.Builders;
+global using Microsoft.Extensions.DependencyInjection;
+global using System.Diagnostics;
+global using U2U.BoardGames.Configurations;
+global using U2U.BoardGames.Data;
+global using U2U.BoardGames.Entities;
+global using U2U.BoardGames.ValueObjects;
+global using U2U.EntityFrameworkCore;
+global using U2U.EntityFrameworkCore.Abstractions;
+global using U2U.EntityFrameworkCore.Abstractions.Interfaces;
+global using U2U.EntityFrameworkCore.Sql;
+global using U2U.ValueObjectComparers;
