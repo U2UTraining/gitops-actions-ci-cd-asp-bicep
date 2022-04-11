@@ -36,9 +36,11 @@ jobs:
       AZURE-WEBAPP-NAME: mywebapp-dev
     steps:
       - name: Download Templates
-        uses: actions/download-artifact@v3.0.0
+        uses: dawidd6/action-download-artifact@v2
         with:
+          workflow: ci-build-test-package.yml
           name: templates
+          path: ${{ runner.temp }}/artifact
 
       - name: Login to Azure
         uses: azure/login@v1
@@ -54,9 +56,11 @@ jobs:
           parameters: location=${{ ENV.AZURE-LOCATION }} appName=${{env.AZURE-WEBAPP-NAME}}
 
       - name: Download Publish
-        uses: actions/download-artifact@v3.0.0
+        uses: dawidd6/action-download-artifact@v2
         with:
+          workflow: ci-build-test-package.yml
           name: publish
+          path: ${{ runner.temp }}/publish
 
       - name: Azure WebApp
         uses: Azure/webapps-deploy@v2
