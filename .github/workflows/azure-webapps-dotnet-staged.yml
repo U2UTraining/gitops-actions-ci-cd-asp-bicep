@@ -4,16 +4,10 @@ name: Deploy-Staged-WebApp
 
 on:
   workflow_run:
-    workflows: [ "Build-Test-Deploy" ]
+    workflows: 
+      - Build-Test-Deploy
     types:
-      -completed
-  push:
-    branches:
-      - main
-    paths:
-      - templates/webapp.bicep
-      - .github/workflows/azure-webapps-dotnet-staged.yml
-  workflow_dispatch:
+      - completed
       
 env:
   AZURE_RG: github-actions-staged
