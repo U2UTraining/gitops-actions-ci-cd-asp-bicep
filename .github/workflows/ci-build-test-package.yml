@@ -1,0 +1,40 @@
+# CI workflow to build, test and package web site
+
+name: Build-Test-Deploy
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore: 
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    env:
+      configuration: release
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Sources
+      uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore --configuration ${{ env.configuration }}
+    - name: Test
+      run: dotnet test --no-build --verbosity normal --configuration ${{ env.configuration }}
+    - name: Publish 
+      run: dotnet publish --configuration ${{ env.configuration }} --output ${{runner.temp }}/artifact
+    - name: Upload the build artifact
+      uses: actions/upload-artifact@v2.2.4
+      with: 
+        name: publish
+        path: ${{ runner.temp }}/artifact
