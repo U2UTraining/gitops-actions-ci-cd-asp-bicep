@@ -58,7 +58,7 @@ jobs:
           template: ${{ runner.temp }}/templates/webapp.bicep
           parameters: location=${{ ENV.AZURE-LOCATION }} appName=${{env.AZURE-WEBAPP-NAME}}
           
-      - run: echo ${{ steps.deploywebapp.outputs }}
+      - run: echo ${{ toJSON(steps.deploywebapp.outputs) }}
       - run: echo ${{ steps.deploywebapp.outputs.* }}
       - run: echo ${{ steps.deploywebapp.outputs.webappname.value }}
 
