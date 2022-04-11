@@ -65,7 +65,7 @@ jobs:
     environment: development
     needs: [ RG_Job ]
     env: 
-      AZURE-WEBAPP-NAME: mywebapp-dev
+      AZURE-WEBAPP-NAME: u2u-mywebapp-dev
     steps:
       - name: Download Templates
         uses: actions/download-artifact@v3.0.0
