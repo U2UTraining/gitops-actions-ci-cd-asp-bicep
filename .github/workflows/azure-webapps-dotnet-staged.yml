@@ -39,8 +39,9 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: ci-build-test-package.yml
+          run_id: ${{ env.GITHUB_RUN_ID }}
           name: templates
-          path: ${{ runner.temp }}/artifact
+          path: ${{ runner.temp }}/templates
 
       - name: Login to Azure
         uses: azure/login@v1
