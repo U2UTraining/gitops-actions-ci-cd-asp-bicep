@@ -96,7 +96,7 @@ jobs:
         uses: actions/download-artifact@v3.0.0
         with:
           name: publish_artifact
-          path: ${{ runner.temp }}/templates
+          path: ${{ runner.temp }}/publish
 
       - name: Azure WebApp
         uses: Azure/webapps-deploy@v2
@@ -137,7 +137,7 @@ jobs:
         uses: actions/download-artifact@v3.0.0
         with:
           name: publish_artifact
-          path: ${{ runner.temp }}/templates
+          path: ${{ runner.temp }}/publish
 
       - name: Azure WebApp
         uses: Azure/webapps-deploy@v2
