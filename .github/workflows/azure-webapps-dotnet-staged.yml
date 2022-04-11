@@ -70,7 +70,7 @@ jobs:
       - name: Azure WebApp
         uses: Azure/webapps-deploy@v2
         with:
-          app-name: ${{ steps.deploywebapp.outputs.webappname }}
+          app-name: ${{ steps.deploywebapp.outputs.webappname.value }}
           package: ${{ runner.temp }}/publish
 
   Prod-Job:
