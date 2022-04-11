@@ -6,7 +6,7 @@ param appName string = uniqueString(resourceGroup().id)
 var appServicePlanName = toLower('asp-${appName}')
 var webSiteName = appName
 
-res ource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   name: appServicePlanName // app serivce plan name
   location: location // Azure Region
   sku: {
