@@ -52,10 +52,13 @@ jobs:
         uses: azure/arm-deploy@v1
         id: deploywebapp
         with:
+          deploymentName: create-webapp
           subscriptionId: ${{ env.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ env.AZURE_RG }}
           template: ${{ runner.temp }}/templates/webapp.bicep
           parameters: location=${{ ENV.AZURE-LOCATION }} appName=${{env.AZURE-WEBAPP-NAME}}
+          
+      - run: echo ${{ steps.deploywebapp.outputs.webappname }}
 
       - name: Download Publish
         uses: dawidd6/action-download-artifact@v2
