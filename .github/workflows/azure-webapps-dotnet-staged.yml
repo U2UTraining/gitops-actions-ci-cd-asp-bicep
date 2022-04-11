@@ -1,0 +1,90 @@
+# uses the ci-cd-asp-bicep service principal
+
+name: Deploy-Staged-WebApp
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - templates/webapp.bicep
+      - .github/workflows/azure-webapps-dotnet-staged.yml
+  workflow_dispatch:
+      
+env:
+  AZURE_RG: github-actions-staged
+  AZURE_SUBSCRIPTION: 30a911a0-bad6-47e9-8aeb-507c96ed5d18
+  AZURE-LOCATION: eastUS
+
+jobs:
+  RG_Job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Create Resource Group
+        uses: Azure/cli@v1
+        with:
+          inlineScript: 
+            az group create --name ${{ env.AZURE_RG }} --location ${{ env.AZURE-LOCATION }}
+
+  Dev-Job:
+    runs-on: ubuntu-latest
+    environment: development
+    needs: [ RG_Job ]
+    env: 
+      AZURE-WEBAPP-NAME: mywebapp-dev
+    steps:
+      - name: Download Templates
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: templates
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Deploy BICEP template
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ env.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ env.AZURE_RG }}
+          template: ${{ runner.temp }}/templates/webapp.bicep
+          parameters: location=${{ ENV.AZURE-LOCATION }} appName=${{env.AZURE-WEBAPP-NAME}}
+
+      - name: Download Publish
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: publish
+
+      - name: Azure WebApp
+        uses: Azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE-WEBAPP-NAME }}
+          package: ${{ runner.temp }}/publish
+
+  Prod-Job:
+    runs-on: ubuntu-latest
+    environment: production
+    env: 
+      AZURE-WEBAPP-NAME: mywebapp-prod
+    needs: [ Dev-Job ]
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v3
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Deploy BICEP template
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ env.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ env.AZURE_RG }}
+          template: ./templates/webapp.bicep
+          parameters: location=${{ ENV.AZURE-LOCATION }} appName=${{env.AZURE-WEBAPP-NAME}}
