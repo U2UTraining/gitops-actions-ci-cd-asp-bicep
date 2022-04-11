@@ -7,13 +7,17 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  AZURE_RG: github-actions-staged
+  AZURE_SUBSCRIPTION: 30a911a0-bad6-47e9-8aeb-507c96ed5d18
+  AZURE-LOCATION: eastUS
+
 jobs:
-  build:
+  Build-Job:
+    runs-on: ubuntu-latest
     env:
       configuration: release
-
-    runs-on: ubuntu-latest
-
+    
     steps:
     - name: Checkout Sources
       uses: actions/checkout@v2
@@ -32,12 +36,71 @@ jobs:
     - name: Upload the build artifact
       uses: actions/upload-artifact@v3.0.0
       with: 
-        name: publish
+        name: publish_artifact
         path: ${{ runner.temp }}/artifact
         retention-days: 30
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.0.0
       with:
-        name: templates
+        name: templates_artifact
         path: ./templates/* 
         retention-days: 30
+
+  RG_Job:
+    runs-on: ubuntu-latest
+    needs: [Build-Job]
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Create Resource Group
+        uses: Azure/cli@v1
+        with:
+          inlineScript: 
+            az group create --name ${{ env.AZURE_RG }} --location ${{ env.AZURE-LOCATION }}
+
+  Dev-Job:
+    runs-on: ubuntu-latest
+    environment: development
+    needs: [ RG_Job ]
+    env: 
+      AZURE-WEBAPP-NAME: mywebapp-dev
+    steps:
+      - name: Download Templates
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: templates_artifact
+          path: ${{ runner.temp }}/templates
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Deploy BICEP template
+        uses: azure/arm-deploy@v1
+        id: deploywebappd
+        with:
+          deploymentName: create-webapp
+          subscriptionId: ${{ env.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ env.AZURE_RG }}
+          template: ${{ runner.temp }}/templates/webapp.bicep
+          parameters: location=${{ ENV.AZURE-LOCATION }} appName=${{env.AZURE-WEBAPP-NAME}}
+          
+      # DEBUG
+      - run: |
+          echo ${{ steps.deploywebappd.outputs.webappname }}
+
+      - name: Download Publish
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: publish_artifact
+          path: ${{ runner.temp }}/templates
+
+      - name: Azure WebApp
+        uses: Azure/webapps-deploy@v2
+        with:
+          app-name: ${{ steps.deploywebappd.outputs.webappname.value }}
+          # app-name: ${{ env.AZURE-WEBAPP-NAME }}
+          package: ${{ runner.temp }}/publish
