@@ -7,8 +7,6 @@ on:
     branches: [ main ]
     paths-ignore: 
       - '.github/workflows/**'
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -22,7 +20,7 @@ jobs:
     - name: Checkout Sources
       uses: actions/checkout@v2
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v2.0.0
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
@@ -34,7 +32,14 @@ jobs:
     - name: Publish 
       run: dotnet publish --configuration ${{ env.configuration }} --output ${{runner.temp }}/artifact
     - name: Upload the build artifact
-      uses: actions/upload-artifact@v2.2.4
+      uses: actions/upload-artifact@v3.0.0
       with: 
         name: publish
         path: ${{ runner.temp }}/artifact
+        retention-days: 30
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.0.0
+      with:
+        name: templates
+        path: ./templates/* 
+        retention-days: 30
