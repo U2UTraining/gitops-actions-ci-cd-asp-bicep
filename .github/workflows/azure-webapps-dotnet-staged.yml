@@ -3,6 +3,10 @@
 name: Deploy-Staged-WebApp
 
 on:
+  workflow_run:
+    workflows: [ "Build-Test-Deploy" ]
+    types:
+      -completed
   push:
     branches:
       - main
