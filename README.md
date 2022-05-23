@@ -4,3 +4,4 @@
 
 [![Deploy-Staged-WebApp](https://github.com/U2UTraining/gitops-actions-ci-cd-asp-bicep/actions/workflows/azure-webapps-dotnet-staged.yml/badge.svg)](https://github.com/U2UTraining/gitops-actions-ci-cd-asp-bicep/actions/workflows/azure-webapps-dotnet-staged.yml)
 
+...
